@@ -9,6 +9,7 @@ import { MarketModule } from './modules/market/market.module.js';
 import { OverviewModule } from './modules/overview/overview.module.js';
 import { ChatModule } from './modules/chat/chat.module.js';
 import { DataSyncModule } from './modules/data-sync/data-sync.module.js';
+import { AffordabilityModule } from './modules/affordability/affordability.module.js';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { DataSyncModule } from './modules/data-sync/data-sync.module.js';
     OverviewModule,
     ChatModule,
     DataSyncModule,
+    AffordabilityModule,
   ],
 })
 export class AppModule {}
