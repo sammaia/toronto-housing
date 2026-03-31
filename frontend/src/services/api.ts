@@ -85,6 +85,25 @@ export interface ImmigrationData {
   region?: string;
 }
 
+export interface AffordabilityData {
+  year: number;
+  medianIncome: number;
+  avgRent2Bed: number;
+  avgDetachedPrice: number;
+  rentToIncome: number;
+  priceToIncome: number;
+  housingStarts: number;
+  estimatedDemand: number;
+  supplyGap: number;
+}
+
+export interface MarketActivityData {
+  year: number;
+  totalSales: number;
+  newListings: number;
+  snlr: number;
+}
+
 export interface DataSource {
   id: number;
   key: string;
@@ -107,6 +126,8 @@ export interface KpiData {
   population: number;
   populationGrowth: number;
   newPermanentResidents: number;
+  rentToIncome: number | null;
+  priceToIncome: number | null;
   year: number;
 }
 
@@ -174,6 +195,16 @@ export async function getPopulation(region?: string): Promise<PopulationData[]> 
 
 export async function getImmigration(): Promise<ImmigrationData[]> {
   const { data } = await api.get<ImmigrationData[]>('/market/immigration');
+  return data;
+}
+
+export async function getAffordability(): Promise<AffordabilityData[]> {
+  const { data } = await api.get<AffordabilityData[]>('/affordability');
+  return data;
+}
+
+export async function getMarketActivity(): Promise<MarketActivityData[]> {
+  const { data } = await api.get<MarketActivityData[]>('/market/activity');
   return data;
 }
 
