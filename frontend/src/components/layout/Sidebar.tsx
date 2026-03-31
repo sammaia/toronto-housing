@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight,
   BarChart3,
+  Info,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -32,6 +33,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', to: '/', icon: LayoutDashboard },
   { label: 'Trends', to: '/trends', icon: TrendingUp },
   { label: 'Market', to: '/market', icon: Building2 },
+  { label: 'Sobre os Dados', to: '/about-data', icon: Info },
   { label: 'AI Chat', to: '/chat', icon: MessageSquare, disabled: true },
 ];
 
