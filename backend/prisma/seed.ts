@@ -157,6 +157,34 @@ async function main() {
     });
   }
 
+  console.log('Seeding median incomes...');
+  await prisma.medianIncome.createMany({
+    data: [
+      { year: 2018, region: 'toronto_cma', medianHouseholdIncome: 82000 },
+      { year: 2019, region: 'toronto_cma', medianHouseholdIncome: 84500 },
+      { year: 2020, region: 'toronto_cma', medianHouseholdIncome: 85000 },
+      { year: 2021, region: 'toronto_cma', medianHouseholdIncome: 87000 },
+      { year: 2022, region: 'toronto_cma', medianHouseholdIncome: 90000 },
+      { year: 2023, region: 'toronto_cma', medianHouseholdIncome: 93000 },
+      { year: 2024, region: 'toronto_cma', medianHouseholdIncome: 96000 },
+    ],
+    skipDuplicates: true,
+  });
+
+  console.log('Seeding market activity (SNLR)...');
+  await prisma.marketActivity.createMany({
+    data: [
+      { year: 2018, totalSales: 77426,  newListings: 155823, snlr: 49.7 },
+      { year: 2019, totalSales: 87825,  newListings: 152693, snlr: 57.5 },
+      { year: 2020, totalSales: 95151,  newListings: 153022, snlr: 62.2 },
+      { year: 2021, totalSales: 121712, newListings: 175566, snlr: 69.3 },
+      { year: 2022, totalSales: 75140,  newListings: 184513, snlr: 40.7 },
+      { year: 2023, totalSales: 65982,  newListings: 166600, snlr: 39.6 },
+      { year: 2024, totalSales: 67610,  newListings: 172678, snlr: 39.1 },
+    ],
+    skipDuplicates: true,
+  });
+
   console.log('Seed complete!');
 }
 

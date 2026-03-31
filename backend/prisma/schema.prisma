@@ -125,6 +125,26 @@ enum MessageRole {
   ASSISTANT
 }
 
+model MedianIncome {
+  id                    Int    @id @default(autoincrement())
+  year                  Int
+  region                String
+  medianHouseholdIncome Int    @map("median_household_income")
+
+  @@unique([year, region])
+  @@map("median_incomes")
+}
+
+model MarketActivity {
+  id          Int   @id @default(autoincrement())
+  year        Int   @unique
+  totalSales  Int   @map("total_sales")
+  newListings Int   @map("new_listings")
+  snlr        Float
+
+  @@map("market_activity")
+}
+
 model DataSource {
   id             Int       @id @default(autoincrement())
   key            String    @unique
