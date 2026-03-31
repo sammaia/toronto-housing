@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("users")
+}
+
+model VacancyRate {
+  id           Int    @id @default(autoincrement())
+  year         Int
+  geography    String
+  bedroomType  String @map("bedroom_type")
+  vacancyRate  Float  @map("vacancy_rate")
+  universe     Int
+
+  @@unique([year, geography, bedroomType])
+  @@map("vacancy_rates")
+}
+
+model RentalPrice {
+  id               Int    @id @default(autoincrement())
+  year             Int
+  geography        String
+  bedroomType      String @map("bedroom_type")
+  averageRent      Float  @map("average_rent")
+  percentageChange Float  @map("percentage_change")
+
+  @@unique([year, geography, bedroomType])
+  @@map("rental_prices")
+}
+
+model HousingStart {
+  id           Int    @id @default(autoincrement())
+  year         Int
+  month        Int
+  geography    String
+  dwellingType String @map("dwelling_type")
+  units        Int
+
+  @@unique([year, month, geography, dwellingType])
+  @@map("housing_starts")
+}
+
+model HomePrice {
+  id           Int    @id @default(autoincrement())
+  year         Int
+  propertyType String @map("property_type")
+  avgPrice     Float  @map("avg_price")
+
+  @@unique([year, propertyType])
+  @@map("home_prices")
+}
+
+model PopulationGrowth {
+  id           Int    @id @default(autoincrement())
+  year         Int
+  region       String
+  population   Int
+  yoyGrowthPct Float  @map("yoy_growth_pct")
+
+  @@unique([year, region])
+  @@map("population_growth")
+}
+
+model Immigration {
+  id                    Int @id @default(autoincrement())
+  year                  Int @unique
+  newPermanentResidents Int @map("new_permanent_residents")
+  temporaryResidentsNet Int @map("temporary_residents_net")
+
+  @@map("immigration")
+}
+
+model MortgageRate {
+  id                    Int   @id @default(autoincrement())
+  year                  Int   @unique
+  avg5yrFixedRate       Float @map("avg_5yr_fixed_rate")
+  bankOfCanadaPolicyRate Float @map("bank_of_canada_policy_rate")
+  avgVariableRate       Float @map("avg_variable_rate")
+
+  @@map("mortgage_rates")
+}
