@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import {
   LineChart,
   Line,
+  ComposedChart,
+  ReferenceArea,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -12,7 +14,14 @@ import {
 import { TrendingDown, TrendingUp, Minus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { getHomePrices, getMortgageRates, type HomePrice, type MortgageRate } from '@/services/api';
+import {
+  getHomePrices,
+  getMortgageRates,
+  getMarketActivity,
+  type HomePrice,
+  type MortgageRate,
+  type MarketActivityData,
+} from '@/services/api';
 import { DarkTooltip } from '@/components/charts/ChartTooltip';
 import { COLOR_SEQUENCE, CHART_COLORS, darkAxisProps, darkGridProps } from '@/components/charts/chartTheme';
 
@@ -119,15 +128,18 @@ function MarketSummaryCard({ prices, rates }: { prices: HomePrice[]; rates: Mort
 export function MarketPage() {
   const [homePrices, setHomePrices] = useState<HomePrice[]>([]);
   const [mortgageRates, setMortgageRates] = useState<MortgageRate[]>([]);
+  const [activityData, setActivityData] = useState<MarketActivityData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
       getHomePrices().catch(() => []),
       getMortgageRates().catch(() => []),
-    ]).then(([prices, rates]) => {
+      getMarketActivity().catch(() => []),
+    ]).then(([prices, rates, activity]) => {
       setHomePrices(prices);
       setMortgageRates(rates);
+      setActivityData(activity);
       setLoading(false);
     });
   }, []);
@@ -147,6 +159,7 @@ export function MarketPage() {
             <Card className="xl:col-span-2 h-96 animate-pulse bg-muted/30" />
             <Card className="h-96 animate-pulse bg-muted/30" />
           </div>
+          <Card className="h-72 animate-pulse bg-muted/30" />
           <Card className="h-72 animate-pulse bg-muted/30" />
         </div>
       ) : (
@@ -201,6 +214,41 @@ export function MarketPage() {
                   <Line type="monotone" dataKey="variable" name="Variable" stroke={COLOR_SEQUENCE[4]} strokeWidth={2} strokeDasharray="5 3" dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
                   <Line type="monotone" dataKey="policyRate" name="Policy Rate" stroke={CHART_COLORS.rose} strokeWidth={2} strokeDasharray="3 2" dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
                 </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* SNLR */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">
+                Sales-to-New-Listings Ratio (SNLR)
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Indicador de equilíbrio do mercado — abaixo de 40%: mercado do comprador · 40–60%: balanceado · acima de 60%: mercado do vendedor
+              </p>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={280}>
+                <ComposedChart data={activityData} margin={{ top: 4, right: 8, bottom: 0, left: -10 }}>
+                  <ReferenceArea y1={60} y2={100} fill="rgba(244,63,94,0.07)" />
+                  <ReferenceArea y1={40} y2={60}  fill="rgba(245,158,11,0.07)" />
+                  <ReferenceArea y1={0}  y2={40}  fill="rgba(16,185,129,0.07)" />
+                  <CartesianGrid {...darkGridProps} />
+                  <XAxis dataKey="year" {...darkAxisProps} />
+                  <YAxis unit="%" domain={[0, 80]} {...darkAxisProps} />
+                  <Tooltip content={<DarkTooltip formatter={(v) => `${v}%`} />} />
+                  <Legend wrapperStyle={{ fontSize: 12, color: '#94a3b8', paddingTop: 8 }} />
+                  <Line
+                    type="monotone"
+                    dataKey="snlr"
+                    name="SNLR"
+                    stroke={COLOR_SEQUENCE[0]}
+                    strokeWidth={2}
+                    dot={{ r: 3, strokeWidth: 0, fill: COLOR_SEQUENCE[0] }}
+                    activeDot={{ r: 5, strokeWidth: 0 }}
+                  />
+                </ComposedChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
