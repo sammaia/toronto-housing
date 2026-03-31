@@ -8,7 +8,7 @@ export class OverviewService {
   async getKpis() {
     const latestYear = 2024;
 
-    const [vacancyRate, avgRent, mortgageRate, avgHomePrice, population, immigration] =
+    const [vacancyRate, avgRent, mortgageRate, avgHomePrice, population, immigration, medianIncome] =
       await Promise.all([
         this.prisma.vacancyRate.findFirst({
           where: { year: latestYear, geography: 'Toronto CMA', bedroomType: 'Total' },
@@ -28,7 +28,20 @@ export class OverviewService {
         this.prisma.immigration.findFirst({
           where: { year: latestYear },
         }),
+        this.prisma.medianIncome.findFirst({
+          where: { year: latestYear, region: 'toronto_cma' },
+        }),
       ]);
+
+    const rentToIncome =
+      avgRent && medianIncome
+        ? parseFloat(((avgRent.averageRent * 12) / medianIncome.medianHouseholdIncome * 100).toFixed(1))
+        : null;
+
+    const priceToIncome =
+      avgHomePrice && medianIncome
+        ? parseFloat((avgHomePrice.avgPrice / medianIncome.medianHouseholdIncome).toFixed(1))
+        : null;
 
     return {
       vacancyRate: vacancyRate?.vacancyRate ?? null,
@@ -40,6 +53,8 @@ export class OverviewService {
       population: population?.population ?? null,
       populationGrowth: population?.yoyGrowthPct ?? null,
       newPermanentResidents: immigration?.newPermanentResidents ?? null,
+      rentToIncome,
+      priceToIncome,
       year: latestYear,
     };
   }
