@@ -188,3 +188,53 @@ export async function getProfile(): Promise<AuthUser> {
   const { data } = await api.get<AuthUser>('/auth/me');
   return data;
 }
+
+// ─── Chat types ────────────────────────────────────────────────────────────────
+
+export interface ConversationSummary {
+  id: string;
+  title: string | null;
+  updatedAt: string;
+}
+
+export interface ConversationMessage {
+  id: string;
+  role: 'USER' | 'ASSISTANT';
+  content: string;
+  toolCalls: unknown;
+  createdAt: string;
+}
+
+export interface ConversationDetail {
+  id: string;
+  title: string | null;
+  messages: ConversationMessage[];
+}
+
+export type ChatSseEvent =
+  | { type: 'text'; content: string }
+  | { type: 'tool_start'; tool: string; input: Record<string, unknown> }
+  | { type: 'tool_end'; tool: string }
+  | { type: 'done'; conversationId: string; title?: string }
+  | { type: 'error'; message: string };
+
+// ─── Chat API functions ────────────────────────────────────────────────────────
+
+export async function createConversation(): Promise<{ id: string }> {
+  const { data } = await api.post<{ id: string }>('/chat/conversations');
+  return data;
+}
+
+export async function getConversations(): Promise<ConversationSummary[]> {
+  const { data } = await api.get<ConversationSummary[]>('/chat/conversations');
+  return data;
+}
+
+export async function getConversation(id: string): Promise<ConversationDetail> {
+  const { data } = await api.get<ConversationDetail>(`/chat/conversations/${id}`);
+  return data;
+}
+
+export async function deleteConversation(id: string): Promise<void> {
+  await api.delete(`/chat/conversations/${id}`);
+}

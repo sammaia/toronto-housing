@@ -13,6 +13,8 @@ model User {
   name      String
   createdAt DateTime @default(now()) @map("created_at")
 
+  conversations Conversation[]
+
   @@map("users")
 }
 
@@ -90,4 +92,35 @@ model MortgageRate {
   avgVariableRate       Float @map("avg_variable_rate")
 
   @@map("mortgage_rates")
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  userId    Int      @map("user_id")
+  title     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@map("conversations")
+}
+
+model Message {
+  id             String      @id @default(cuid())
+  conversationId String      @map("conversation_id")
+  role           MessageRole
+  content        String      @db.Text
+  toolCalls      Json?       @map("tool_calls")
+  createdAt      DateTime    @default(now()) @map("created_at")
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
 }

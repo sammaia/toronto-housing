@@ -32,7 +32,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', to: '/', icon: LayoutDashboard },
   { label: 'Trends', to: '/trends', icon: TrendingUp },
   { label: 'Market', to: '/market', icon: Building2 },
-  { label: 'AI Chat', to: '/chat', icon: MessageSquare, disabled: true },
+  { label: 'AI Chat', to: '/chat', icon: MessageSquare },
 ];
 
 function getInitials(name: string): string {
