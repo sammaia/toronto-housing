@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service.js';
-import { downloadRmsCsv } from './cmhc-rms.fetcher.js';
+import { downloadRentalCsv } from './cmhc-rms.fetcher.js';
 import type { DataFetcher } from './data-fetcher.interface.js';
 
 @Injectable()
@@ -11,7 +11,7 @@ export class CmhcRentalFetcher implements DataFetcher {
   constructor(private readonly prisma: PrismaService) {}
 
   async fetch(): Promise<void> {
-    const rows = await downloadRmsCsv();
+    const rows = await downloadRentalCsv();
     let upserted = 0;
 
     for (const row of rows) {
