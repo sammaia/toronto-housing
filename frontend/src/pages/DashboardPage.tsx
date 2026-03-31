@@ -148,6 +148,7 @@ export function DashboardPage() {
 
   const kpiCards: KpiCardProps[] = kpis
     ? [
+        // Row 1: Rental & rates
         {
           label: 'Vacancy Rate',
           value: `${kpis.vacancyRate.toFixed(1)}%`,
@@ -168,14 +169,6 @@ export function DashboardPage() {
           accentColor: COLOR_SEQUENCE[1],
         },
         {
-          label: 'Rent Change YoY',
-          value: `${kpis.rentChange > 0 ? '+' : ''}${kpis.rentChange.toFixed(1)}%`,
-          subtext: `As of ${kpis.year}`,
-          trend: kpis.rentChange > 0 ? 'up' : 'down',
-          icon: TrendingUp,
-          accentColor: kpis.rentChange > 0 ? '#10b981' : '#f43f5e',
-        },
-        {
           label: '5-Yr Mortgage Rate',
           value: `${kpis.mortgageRate5yr.toFixed(2)}%`,
           subtext: `Policy rate ${kpis.policyRate.toFixed(2)}%`,
@@ -183,6 +176,15 @@ export function DashboardPage() {
           icon: Building,
           accentColor: COLOR_SEQUENCE[3],
         },
+        {
+          label: 'Population Growth',
+          value: `+${kpis.populationGrowth.toFixed(1)}%`,
+          subtext: `${formatNumber(kpis.newPermanentResidents)} new residents`,
+          trend: 'up',
+          icon: Users,
+          accentColor: COLOR_SEQUENCE[5],
+        },
+        // Row 2: Prices & affordability
         {
           label: 'Avg Detached Price',
           value: formatCurrency(kpis.avgDetachedPrice),
@@ -192,12 +194,28 @@ export function DashboardPage() {
           accentColor: COLOR_SEQUENCE[4],
         },
         {
-          label: 'Population Growth',
-          value: `+${kpis.populationGrowth.toFixed(1)}%`,
-          subtext: `${formatNumber(kpis.newPermanentResidents)} new residents`,
-          trend: 'up',
-          icon: Users,
-          accentColor: COLOR_SEQUENCE[5],
+          label: 'Price-to-Income',
+          value: kpis.priceToIncome != null ? `${kpis.priceToIncome}×` : '—',
+          subtext: 'benchmark saudável: 5×',
+          trend: kpis.priceToIncome != null && kpis.priceToIncome > 5 ? 'down' : 'neutral',
+          icon: TrendingUp,
+          accentColor: '#f43f5e',
+        },
+        {
+          label: 'Rent-to-Income',
+          value: kpis.rentToIncome != null ? `${kpis.rentToIncome}%` : '—',
+          subtext: 'limite crítico: 30%',
+          trend: kpis.rentToIncome != null && kpis.rentToIncome > 30 ? 'down' : 'neutral',
+          icon: Percent,
+          accentColor: '#ec4899',
+        },
+        {
+          label: 'Rent Change YoY',
+          value: `${kpis.rentChange > 0 ? '+' : ''}${kpis.rentChange.toFixed(1)}%`,
+          subtext: `As of ${kpis.year}`,
+          trend: kpis.rentChange > 0 ? 'up' : 'down',
+          icon: TrendingUp,
+          accentColor: kpis.rentChange > 0 ? '#10b981' : '#f43f5e',
         },
       ]
     : [];
@@ -214,13 +232,13 @@ export function DashboardPage() {
 
       {/* KPI cards */}
       {loading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+          {Array.from({ length: 8 }).map((_, i) => (
             <Card key={i} className="h-28 animate-pulse bg-muted/30" />
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {kpiCards.map((card) => (
             <KpiCard key={card.label} {...card} />
           ))}
