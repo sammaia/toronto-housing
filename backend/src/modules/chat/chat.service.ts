@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import Anthropic from '@anthropic-ai/sdk';
 import { PrismaService } from '../../prisma/prisma.service.js';
+import { Prisma } from '@prisma/client';
 import { ToolService, TOOL_DEFINITIONS } from './chat.tools.js';
 
 export type ChatSseEvent =
@@ -70,13 +71,127 @@ export class ChatService {
     await this.prisma.conversation.delete({ where: { id: conversationId } });
   }
 
-  // sendMessage implemented in Task 6
   async sendMessage(
     conversationId: string,
     userId: number,
     content: string,
     write: (event: ChatSseEvent) => void,
   ): Promise<void> {
-    throw new Error('Not implemented yet');
+    // 1. Validate ownership
+    const conv = await this.prisma.conversation.findUnique({
+      where: { id: conversationId },
+      include: { messages: { orderBy: { createdAt: 'asc' } } },
+    });
+    if (!conv) throw new NotFoundException('Conversation not found');
+    if (conv.userId !== userId) throw new ForbiddenException();
+
+    // 2. Save user message
+    await this.prisma.message.create({
+      data: { conversationId, role: 'USER', content },
+    });
+
+    // 3. Build Anthropic messages array from history
+    const messages: Anthropic.MessageParam[] = conv.messages.map((m) => ({
+      role: m.role === 'USER' ? 'user' : 'assistant',
+      content: m.content,
+    }));
+    messages.push({ role: 'user', content });
+
+    // 4. Run agentic loop
+    const model = process.env.ANTHROPIC_MODEL ?? 'claude-haiku-4-5-20251001';
+    let fullText = '';
+    const toolCallsLog: Array<{ name: string; input: unknown }> = [];
+    const isFirstMessage = conv.messages.length === 0;
+
+    let continueLoop = true;
+    while (continueLoop) {
+      const stream = this.anthropic.messages.stream({
+        model,
+        max_tokens: 1024,
+        system: SYSTEM_PROMPT,
+        messages,
+        tools: TOOL_DEFINITIONS,
+      });
+
+      stream.on('text', (text: string) => {
+        fullText += text;
+        write({ type: 'text', content: text });
+      });
+
+      const response = await stream.finalMessage();
+
+      if (response.stop_reason === 'end_turn') {
+        continueLoop = false;
+      } else if (response.stop_reason === 'tool_use') {
+        // Add assistant turn to messages
+        messages.push({ role: 'assistant', content: response.content });
+
+        // Execute each tool and collect results
+        const toolResults: Anthropic.ToolResultBlockParam[] = [];
+        for (const block of response.content) {
+          if (block.type === 'tool_use') {
+            const toolInput = block.input as Record<string, unknown>;
+            write({ type: 'tool_start', tool: block.name, input: toolInput });
+            const result = await this.toolService.run(block.name, toolInput);
+            write({ type: 'tool_end', tool: block.name });
+            toolCallsLog.push({ name: block.name, input: toolInput });
+            toolResults.push({
+              type: 'tool_result',
+              tool_use_id: block.id,
+              content: JSON.stringify(result),
+            });
+          }
+        }
+
+        messages.push({ role: 'user', content: toolResults });
+      } else {
+        continueLoop = false;
+      }
+    }
+
+    // 5. Save assistant message
+    await this.prisma.message.create({
+      data: {
+        conversationId,
+        role: 'ASSISTANT',
+        content: fullText,
+        toolCalls: toolCallsLog.length > 0 ? (toolCallsLog as unknown as Prisma.InputJsonValue) : undefined,
+      },
+    });
+
+    // 6. Update conversation updatedAt
+    await this.prisma.conversation.update({
+      where: { id: conversationId },
+      data: { updatedAt: new Date() },
+    });
+
+    // 7. Generate title for first message
+    let title: string | undefined;
+    if (isFirstMessage) {
+      title = await this.generateTitle(content);
+      await this.prisma.conversation.update({
+        where: { id: conversationId },
+        data: { title },
+      });
+    }
+
+    write({ type: 'done', conversationId, title });
+  }
+
+  private async generateTitle(userMessage: string): Promise<string> {
+    try {
+      const response = await this.anthropic.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 20,
+        messages: [{
+          role: 'user',
+          content: `Summarize this question in 4-6 words as a conversation title (no quotes, no punctuation):\n"${userMessage}"`,
+        }],
+      });
+      const block = response.content[0];
+      return block.type === 'text' ? block.text.trim() : 'New conversation';
+    } catch {
+      return 'New conversation';
+    }
   }
 }
