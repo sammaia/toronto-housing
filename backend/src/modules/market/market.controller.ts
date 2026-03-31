@@ -24,4 +24,9 @@ export class MarketController {
   getImmigration() {
     return this.marketService.getImmigration();
   }
+
+  @Get('activity')
+  getMarketActivity() {
+    return this.marketService.getMarketActivity();
+  }
 }

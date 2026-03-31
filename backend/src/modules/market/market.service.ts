@@ -47,4 +47,8 @@ export class MarketService {
   async getImmigration() {
     return this.prisma.immigration.findMany({ orderBy: { year: 'asc' } });
   }
+
+  async getMarketActivity() {
+    return this.prisma.marketActivity.findMany({ orderBy: { year: 'asc' } });
+  }
 }
