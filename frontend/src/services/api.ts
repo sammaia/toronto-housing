@@ -85,6 +85,18 @@ export interface ImmigrationData {
   region?: string;
 }
 
+export interface DataSource {
+  id: number;
+  key: string;
+  name: string;
+  description: string;
+  url: string;
+  lastSyncedAt: string | null;
+  lastSyncStatus: 'pending' | 'success' | 'failed' | 'manual';
+  errorMessage: string | null;
+  updatedAt: string;
+}
+
 export interface KpiData {
   vacancyRate: number;
   avgRent2Bed: number;
@@ -162,6 +174,13 @@ export async function getPopulation(region?: string): Promise<PopulationData[]> 
 
 export async function getImmigration(): Promise<ImmigrationData[]> {
   const { data } = await api.get<ImmigrationData[]>('/market/immigration');
+  return data;
+}
+
+// ─── Data sources ─────────────────────────────────────────────────────────────
+
+export async function getDataSources(): Promise<DataSource[]> {
+  const { data } = await api.get<DataSource[]>('/data-sources');
   return data;
 }
 

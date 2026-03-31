@@ -124,3 +124,18 @@ enum MessageRole {
   USER
   ASSISTANT
 }
+
+model DataSource {
+  id             Int       @id @default(autoincrement())
+  key            String    @unique
+  name           String
+  description    String
+  url            String
+  lastSyncedAt   DateTime? @map("last_synced_at")
+  lastSyncStatus String    @default("pending") @map("last_sync_status")
+  errorMessage   String?   @map("error_message")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  @@map("data_sources")
+}

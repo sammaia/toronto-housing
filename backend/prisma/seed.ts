@@ -103,6 +103,60 @@ async function main() {
     skipDuplicates: true,
   });
 
+  console.log('Seeding data sources...');
+  const sources = [
+    {
+      key: 'cmhc_vacancy',
+      name: 'CMHC Rental Market Survey — Vacancy Rates',
+      description: 'Annual vacancy rates by bedroom type for Toronto CMA and Ontario, from the CMHC Rental Market Survey (RMS), published each November.',
+      url: 'https://www.cmhc-schl.gc.ca/en/data-and-research/data-tables/rental-market-report',
+      lastSyncStatus: 'pending',
+    },
+    {
+      key: 'cmhc_rental',
+      name: 'CMHC Rental Market Survey — Average Rents',
+      description: 'Average monthly rents by bedroom type for Toronto CMA and Ontario, from the CMHC Rental Market Survey (RMS), published each November.',
+      url: 'https://www.cmhc-schl.gc.ca/en/data-and-research/data-tables/rental-market-report',
+      lastSyncStatus: 'pending',
+    },
+    {
+      key: 'cmhc_housing_starts',
+      name: 'CMHC Housing Now — Housing Starts',
+      description: 'Monthly housing starts by dwelling type for Toronto CMA, from the CMHC Housing Now publication. Updated monthly.',
+      url: 'https://www.cmhc-schl.gc.ca/en/data-and-research/data-tables/housing-starts-under-construction-completions',
+      lastSyncStatus: 'pending',
+    },
+    {
+      key: 'boc_rates',
+      name: 'Bank of Canada — Interest Rates',
+      description: 'Annual averages of the Bank Rate (policy rate proxy) and 5-year conventional mortgage rate, from the Bank of Canada Valet API.',
+      url: 'https://www.bankofcanada.ca/rates/interest-rates/',
+      lastSyncStatus: 'pending',
+    },
+    {
+      key: 'statcan_population',
+      name: 'Statistics Canada — Population & Immigration',
+      description: 'Annual Ontario population estimates (table 17-10-0005-01) and national immigration components (table 17-10-0040-01), from Statistics Canada.',
+      url: 'https://www150.statcan.gc.ca/n1/en/subjects/population_and_demography',
+      lastSyncStatus: 'pending',
+    },
+    {
+      key: 'trreb_home_prices',
+      name: 'TRREB Market Watch — Home Prices',
+      description: 'Average home prices by property type in Toronto. Updated manually — TRREB does not offer a public API.',
+      url: 'https://trreb.ca/index.php/market-news/market-watch',
+      lastSyncStatus: 'manual',
+    },
+  ];
+
+  for (const source of sources) {
+    await prisma.dataSource.upsert({
+      where: { key: source.key },
+      update: {},
+      create: source,
+    });
+  }
+
   console.log('Seed complete!');
 }
 

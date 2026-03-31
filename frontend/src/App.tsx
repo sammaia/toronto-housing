@@ -6,7 +6,8 @@ import { RegisterPage } from '@/pages/RegisterPage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { TrendsPage } from '@/pages/TrendsPage';
 import { MarketPage } from '@/pages/MarketPage';
-import { ChatPage } from '@/pages/ChatPage';
+import { AboutDataPage } from "@/pages/AboutDataPage";
+import { ChatPage } from "@/pages/ChatPage";
 
 /** Wraps a route that requires authentication. Redirects to /login if not authenticated. */
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -48,6 +49,7 @@ export default function App() {
         <Route path="/" element={<DashboardPage />} />
         <Route path="/trends" element={<TrendsPage />} />
         <Route path="/market" element={<MarketPage />} />
+        <Route path="/about-data" element={<AboutDataPage />} />
         <Route path="/chat" element={<ChatPage />} />
       </Route>
 
