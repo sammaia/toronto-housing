@@ -38,7 +38,7 @@ On `onModuleInit`, the sync also runs once immediately to populate data on first
 | `cmhc_rental` | CMHC Rental Market Survey (Rents) | open.canada.ca | CSV download | Annual (Nov/Dec) |
 | `cmhc_housing_starts` | CMHC Housing Now | open.canada.ca | CSV download | Monthly |
 | `boc_rates` | Bank of Canada Valet API | valet.bankofcanada.ca | REST JSON | Ongoing |
-| `statcan_population` | Statistics Canada Web Data Service | www150.statcan.gc.ca | REST JSON | Annual (~1yr lag) |
+| `statcan_population` | Statistics Canada Web Data Service | www150.statcan.gc.ca | REST JSON | Annual (~1yr lag) — populates both `population_growth` and `immigration` tables |
 | `trreb_home_prices` | TRREB Market Watch | trreb.ca | Manual CSV | No public API |
 
 **TRREB note:** No free public API exists. The existing manual CSV is retained. The data_sources record for TRREB has `sync_status = 'manual'` and is never updated by the cron.
