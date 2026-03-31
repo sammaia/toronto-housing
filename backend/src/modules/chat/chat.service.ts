@@ -20,17 +20,21 @@ Keep answers concise and insightful — lead with the key finding, then support 
 
 @Injectable()
 export class ChatService {
-  private readonly anthropic: Anthropic;
+  private _anthropic: Anthropic | null = null;
+
+  private get anthropic(): Anthropic {
+    if (!this._anthropic) {
+      const apiKey = process.env.ANTHROPIC_API_KEY;
+      if (!apiKey) throw new Error('ANTHROPIC_API_KEY is not set in .env');
+      this._anthropic = new Anthropic({ apiKey });
+    }
+    return this._anthropic;
+  }
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly toolService: ToolService,
-    anthropicClient?: Anthropic,
-  ) {
-    this.anthropic = anthropicClient ?? new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    });
-  }
+  ) {}
 
   async createConversation(userId: number): Promise<{ id: string }> {
     const conv = await this.prisma.conversation.create({

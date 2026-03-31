@@ -23,7 +23,7 @@ describe('ChatService CRUD', () => {
   beforeEach(() => {
     prisma = makePrisma();
     // ToolService and Anthropic not needed for CRUD tests
-    service = new ChatService(prisma as any, {} as any, {} as any);
+    service = new ChatService(prisma as any, {} as any);
   });
 
   it('createConversation creates and returns conversation id', async () => {
