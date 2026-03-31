@@ -11,9 +11,12 @@ function SyncBadge({ status, lastSyncedAt }: { status: DataSource['lastSyncStatu
     return <Badge variant="outline" className="text-muted-foreground">Aguardando sincronização</Badge>;
   }
   if (status === 'failed') {
+    const lastSuccess = lastSyncedAt
+      ? new Intl.DateTimeFormat('pt-BR', { dateStyle: 'medium' }).format(new Date(lastSyncedAt))
+      : null;
     return (
-      <Badge variant="destructive">
-        Falha na última sincronização
+      <Badge variant="destructive" className="text-xs">
+        {lastSuccess ? `Falha — último sucesso: ${lastSuccess}` : 'Falha na última sincronização'}
       </Badge>
     );
   }

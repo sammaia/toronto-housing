@@ -60,7 +60,7 @@ export class DataSyncService implements OnModuleInit {
       this.logger.error(`Fetcher ${fetcher.sourceKey} failed: ${message}`);
       await this.prisma.dataSource.update({
         where: { key: fetcher.sourceKey },
-        data: { lastSyncStatus: 'failed', lastSyncedAt: now, errorMessage: message },
+        data: { lastSyncStatus: 'failed', errorMessage: message },
       });
       throw err;
     }
