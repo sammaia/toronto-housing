@@ -6,11 +6,13 @@ import {
   Bar,
   AreaChart,
   Area,
+  ComposedChart,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   Legend,
+  ReferenceLine,
   ResponsiveContainer,
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,9 +30,11 @@ import {
   getHousingStartsAnnual,
   getPopulation,
   getImmigration,
+  getAffordability,
   type HousingStart,
   type PopulationData,
   type ImmigrationData,
+  type AffordabilityData,
 } from '@/services/api';
 import { DarkTooltip } from '@/components/charts/ChartTooltip';
 import { COLOR_SEQUENCE, darkAxisProps, darkGridProps } from '@/components/charts/chartTheme';
@@ -286,6 +290,160 @@ function DemographicsTab() {
   );
 }
 
+// ─── Affordability Tab ───────────────────────────────────────────────────────
+
+function AffordabilityTab() {
+  const [data, setData] = useState<AffordabilityData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getAffordability()
+      .then(setData)
+      .catch(() => setData([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-sm font-medium text-foreground">Affordability Analysis</h3>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          Income ratios and housing supply gap — Toronto CMA
+        </p>
+      </div>
+
+      {loading ? (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            {[0, 1].map((i) => <Card key={i} className="h-72 animate-pulse bg-muted/30" />)}
+          </div>
+          <Card className="h-72 animate-pulse bg-muted/30" />
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            {/* Price-to-Income */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Price-to-Income Ratio</CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  Anos de renda mediana necessários para comprar um imóvel (Toronto CMA)
+                </p>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={280}>
+                  <LineChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: -10 }}>
+                    <CartesianGrid {...darkGridProps} />
+                    <XAxis dataKey="year" {...darkAxisProps} />
+                    <YAxis
+                      tickFormatter={(v: number) => `${v}×`}
+                      domain={[0, 'auto']}
+                      {...darkAxisProps}
+                    />
+                    <Tooltip content={<DarkTooltip formatter={(v) => `${v}×`} />} />
+                    <ReferenceLine
+                      y={5}
+                      stroke="#10b981"
+                      strokeDasharray="5 3"
+                      label={{ value: 'benchmark 5×', position: 'insideTopLeft', fill: '#10b981', fontSize: 11 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="priceToIncome"
+                      name="Price-to-Income"
+                      stroke="#f43f5e"
+                      strokeWidth={2}
+                      dot={false}
+                      activeDot={{ r: 4, strokeWidth: 0 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Rent-to-Income */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Rent-to-Income Ratio</CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  % da renda mediana anual gasta com aluguel de 2 quartos (Toronto CMA)
+                </p>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={280}>
+                  <LineChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: -10 }}>
+                    <CartesianGrid {...darkGridProps} />
+                    <XAxis dataKey="year" {...darkAxisProps} />
+                    <YAxis unit="%" {...darkAxisProps} />
+                    <Tooltip content={<DarkTooltip formatter={(v) => `${v}%`} />} />
+                    <ReferenceLine
+                      y={30}
+                      stroke="#f59e0b"
+                      strokeDasharray="5 3"
+                      label={{ value: 'limite 30%', position: 'insideTopLeft', fill: '#f59e0b', fontSize: 11 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="rentToIncome"
+                      name="Rent-to-Income"
+                      stroke="#ec4899"
+                      strokeWidth={2}
+                      dot={false}
+                      activeDot={{ r: 4, strokeWidth: 0 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Supply Gap */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Supply Gap — Housing Starts vs. Demand Estimada</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Unidades iniciadas por ano vs. novos domicílios necessários · demanda = crescimento pop. ÷ 2.5 pessoas/domicílio
+              </p>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={320}>
+                <ComposedChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
+                  <CartesianGrid {...darkGridProps} />
+                  <XAxis dataKey="year" {...darkAxisProps} />
+                  <YAxis
+                    tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}k`}
+                    {...darkAxisProps}
+                  />
+                  <Tooltip content={<DarkTooltip formatter={(v) => formatNumber(v)} />} />
+                  <Legend wrapperStyle={{ fontSize: 12, color: '#94a3b8', paddingTop: 8 }} />
+                  <Area
+                    type="monotone"
+                    dataKey="housingStarts"
+                    name="Housing Starts"
+                    stroke={COLOR_SEQUENCE[0]}
+                    fill={`${COLOR_SEQUENCE[0]}33`}
+                    strokeWidth={2}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="estimatedDemand"
+                    name="Demanda Estimada"
+                    stroke="#f43f5e"
+                    strokeWidth={2}
+                    strokeDasharray="6 3"
+                    dot={false}
+                    activeDot={{ r: 4, strokeWidth: 0 }}
+                  />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export function TrendsPage() {
@@ -303,6 +461,7 @@ export function TrendsPage() {
           <TabsTrigger value="rental">Rental Market</TabsTrigger>
           <TabsTrigger value="starts">Housing Starts</TabsTrigger>
           <TabsTrigger value="demographics">Demographics</TabsTrigger>
+          <TabsTrigger value="affordability">Affordability</TabsTrigger>
         </TabsList>
 
         <TabsContent value="rental">
@@ -313,6 +472,9 @@ export function TrendsPage() {
         </TabsContent>
         <TabsContent value="demographics">
           <DemographicsTab />
+        </TabsContent>
+        <TabsContent value="affordability">
+          <AffordabilityTab />
         </TabsContent>
       </Tabs>
     </div>
