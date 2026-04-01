@@ -5,8 +5,10 @@ import { parse } from 'csv-parse/sync';
 import { PrismaService } from '../../../prisma/prisma.service.js';
 import type { DataFetcher } from './data-fetcher.interface.js';
 
-const POP_ZIP_URL = 'https://www150.statcan.gc.ca/t1/tbl1/en/dtbl!17100005-eng.zip';
-const MIGRATION_ZIP_URL = 'https://www150.statcan.gc.ca/t1/tbl1/en/dtbl!17100040-eng.zip';
+// StatCan bulk CSV download URLs (table 17-10-0005-01 and 17-10-0040-01)
+// The /dtbl! URL format was deprecated; current format uses the full 10-digit PID
+const POP_ZIP_URL = 'https://www150.statcan.gc.ca/t1/tbl1/en/dtbl!1710000501-eng.zip';
+const MIGRATION_ZIP_URL = 'https://www150.statcan.gc.ca/t1/tbl1/en/dtbl!1710004001-eng.zip';
 
 @Injectable()
 export class StatcanFetcher implements DataFetcher {
@@ -15,8 +17,16 @@ export class StatcanFetcher implements DataFetcher {
 
   constructor(private readonly prisma: PrismaService) {}
 
+  private readonly BROWSER_HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (compatible; toronto-housing-sync/1.0)',
+    Accept: 'application/zip, application/octet-stream, */*',
+  };
+
   private async downloadCsvFromZip(url: string, csvFilenameFragment: string): Promise<Record<string, string>[]> {
-    const response = await axios.get<ArrayBuffer>(url, { responseType: 'arraybuffer' });
+    const response = await axios.get<ArrayBuffer>(url, {
+      responseType: 'arraybuffer',
+      headers: this.BROWSER_HEADERS,
+    });
     const zip = new AdmZip(Buffer.from(response.data));
     const entry = zip.getEntries().find(
       (e) => e.entryName.includes(csvFilenameFragment) && !e.entryName.includes('MetaData'),

@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
+import AdmZip from 'adm-zip';
 import { parse } from 'csv-parse/sync';
 import { PrismaService } from '../../../prisma/prisma.service.js';
 import type { DataFetcher } from './data-fetcher.interface.js';
@@ -18,16 +19,44 @@ export class CmhcHousingStartsFetcher implements DataFetcher {
 
   constructor(private readonly prisma: PrismaService) {}
 
+  private readonly BROWSER_HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (compatible; toronto-housing-sync/1.0)',
+    Accept: 'application/json, text/plain, */*',
+  };
+
   async fetch(): Promise<void> {
     // Discover CSV URL dynamically via CKAN API
-    const pkg = await axios.get<{ result: { resources: { format: string; url: string }[] } }>(CKAN_URL);
+    const pkg = await axios.get<{ success: boolean; result: { resources: { format: string; url: string }[] } }>(
+      CKAN_URL,
+      { headers: this.BROWSER_HEADERS },
+    );
+    if (!pkg.data.result) {
+      throw new Error(`CKAN API returned no result for package ${CMHC_STARTS_PACKAGE} — response: ${JSON.stringify(pkg.data).slice(0, 200)}`);
+    }
     const csvResource = pkg.data.result.resources.find(
       (r) => r.format?.toUpperCase() === 'CSV',
     );
     if (!csvResource) throw new Error(`No CSV resource found in CMHC package: ${CMHC_STARTS_PACKAGE}`);
 
-    const csvResponse = await axios.get<string>(csvResource.url);
-    const rows: Record<string, string>[] = parse(csvResponse.data, {
+    const fileResponse = await axios.get<ArrayBuffer>(csvResource.url, {
+      headers: { ...this.BROWSER_HEADERS, Accept: 'application/zip, application/octet-stream, */*' },
+      responseType: 'arraybuffer',
+    });
+    const buf = Buffer.from(fileResponse.data);
+
+    let csvText: string;
+    if (buf[0] === 0x50 && buf[1] === 0x4b) {
+      const zip = new AdmZip(buf);
+      const entry = zip.getEntries().find(
+        (e) => e.entryName.endsWith('.csv') && !e.entryName.includes('MetaData'),
+      );
+      if (!entry) throw new Error(`No CSV entry in ZIP from CMHC package: ${CMHC_STARTS_PACKAGE}`);
+      csvText = entry.getData().toString('utf-8');
+    } else {
+      csvText = buf.toString('utf-8');
+    }
+
+    const rows: Record<string, string>[] = parse(csvText, {
       columns: true,
       skip_empty_lines: true,
     });
