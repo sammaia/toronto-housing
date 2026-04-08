@@ -27,6 +27,7 @@ export function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isDemoLoading, setIsDemoLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [shake, setShake] = useState(false);
 
@@ -577,6 +578,39 @@ export function LoginPage() {
                 {isLoading ? 'Signing in…' : 'Sign in'}
               </button>
             </form>
+
+            <div style={{ position: 'relative', margin: '1.25rem 0' }}>
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center' }}>
+                <div style={{ width: '100%', height: '1px', background: 'hsla(213, 31%, 91%, 0.08)' }} />
+              </div>
+              <div style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
+                <span style={{ padding: '0 1rem', background: 'hsl(224, 71%, 4%)', fontSize: '0.75rem', color: 'hsl(215, 16%, 42%)' }}>or</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="lp-submit"
+              disabled={isDemoLoading}
+              style={{ background: 'transparent', border: '1px solid hsl(38, 95%, 52%)', color: 'hsl(38, 95%, 62%)' }}
+              onClick={async () => {
+                setIsDemoLoading(true);
+                setError('');
+                try {
+                  await login('samantha_maia@icloud.com', 'samisami1');
+                  navigate('/');
+                } catch {
+                  setError('Demo login failed. Please try again.');
+                  setShake(true);
+                  setTimeout(() => setShake(false), 650);
+                } finally {
+                  setIsDemoLoading(false);
+                }
+              }}
+            >
+              {isDemoLoading && <span className="lp-spinner" />}
+              {isDemoLoading ? 'Loading demo…' : 'View Demo'}
+            </button>
 
             <p className="lp-footer">
               Don't have an account?{' '}
