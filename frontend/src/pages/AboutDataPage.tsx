@@ -12,7 +12,7 @@ export function AboutDataPage() {
   useEffect(() => {
     getDataSources()
       .then(setSources)
-      .catch(() => setError('Não foi possível carregar as fontes de dados.'))
+      .catch(() => setError('Could not load data sources.'))
       .finally(() => setLoading(false));
   }, []);
 
@@ -22,10 +22,10 @@ export function AboutDataPage() {
       <div className="space-y-1">
         <div className="flex items-center gap-2">
           <Database className="w-5 h-5 text-muted-foreground" />
-          <h1 className="text-xl font-semibold">Sobre os Dados</h1>
+          <h1 className="text-xl font-semibold">About the Data</h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          Todas as fontes utilizadas neste dashboard, com status de sincronização e links oficiais.
+          All sources used in this dashboard, with sync status and official links.
         </p>
       </div>
 
@@ -54,7 +54,7 @@ export function AboutDataPage() {
       {!loading && !error && (
         <div className="border-t border-border pt-6">
           <p className="text-xs text-muted-foreground max-w-2xl">
-            Os dados são sincronizados automaticamente toda segunda-feira às 3h. O foco geográfico é Toronto CMA e Ontario. Preços de imóveis (TRREB) não possuem API pública gratuita e são atualizados manualmente.
+            Data is automatically synced every Monday at 3 AM. Geographic focus is Toronto CMA and Ontario. Home prices (TRREB) have no free public API and are updated manually.
           </p>
         </div>
       )}

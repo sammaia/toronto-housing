@@ -196,7 +196,7 @@ export function DashboardPage() {
         {
           label: 'Price-to-Income',
           value: kpis.priceToIncome != null ? `${kpis.priceToIncome}×` : '—',
-          subtext: 'benchmark saudável: 5×',
+          subtext: 'healthy benchmark: 5×',
           trend: kpis.priceToIncome != null && kpis.priceToIncome > 5 ? 'down' : 'neutral',
           icon: TrendingUp,
           accentColor: '#f43f5e',
@@ -204,7 +204,7 @@ export function DashboardPage() {
         {
           label: 'Rent-to-Income',
           value: kpis.rentToIncome != null ? `${kpis.rentToIncome}%` : '—',
-          subtext: 'limite crítico: 30%',
+          subtext: 'critical threshold: 30%',
           trend: kpis.rentToIncome != null && kpis.rentToIncome > 30 ? 'down' : 'neutral',
           icon: Percent,
           accentColor: '#ec4899',

@@ -225,7 +225,7 @@ export function MarketPage() {
                 Sales-to-New-Listings Ratio (SNLR)
               </CardTitle>
               <p className="text-xs text-muted-foreground">
-                Indicador de equilíbrio do mercado — abaixo de 40%: mercado do comprador · 40–60%: balanceado · acima de 60%: mercado do vendedor
+                Market balance indicator — below 40%: buyer's market · 40–60%: balanced · above 60%: seller's market
               </p>
             </CardHeader>
             <CardContent>

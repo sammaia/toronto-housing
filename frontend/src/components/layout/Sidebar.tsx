@@ -33,7 +33,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', to: '/', icon: LayoutDashboard },
   { label: 'Trends', to: '/trends', icon: TrendingUp },
   { label: 'Market', to: '/market', icon: Building2 },
-  { label: 'Sobre os Dados', to: '/about-data', icon: Info },
+  { label: 'About Data', to: '/about-data', icon: Info },
   { label: 'AI Chat', to: '/chat', icon: MessageSquare },
 ];
 

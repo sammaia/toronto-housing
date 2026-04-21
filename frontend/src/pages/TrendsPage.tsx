@@ -327,7 +327,7 @@ function AffordabilityTab() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">Price-to-Income Ratio</CardTitle>
                 <p className="text-xs text-muted-foreground">
-                  Anos de renda mediana necessários para comprar um imóvel (Toronto CMA)
+                  Years of median income needed to purchase a home (Toronto CMA)
                 </p>
               </CardHeader>
               <CardContent>
@@ -366,7 +366,7 @@ function AffordabilityTab() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">Rent-to-Income Ratio</CardTitle>
                 <p className="text-xs text-muted-foreground">
-                  % da renda mediana anual gasta com aluguel de 2 quartos (Toronto CMA)
+                  % of annual median income spent on a 2-bedroom rental (Toronto CMA)
                 </p>
               </CardHeader>
               <CardContent>
@@ -380,7 +380,7 @@ function AffordabilityTab() {
                       y={30}
                       stroke="#f59e0b"
                       strokeDasharray="5 3"
-                      label={{ value: 'limite 30%', position: 'insideTopLeft', fill: '#f59e0b', fontSize: 11 }}
+                      label={{ value: 'threshold 30%', position: 'insideTopLeft', fill: '#f59e0b', fontSize: 11 }}
                     />
                     <Line
                       type="monotone"
@@ -400,9 +400,9 @@ function AffordabilityTab() {
           {/* Supply Gap */}
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">Supply Gap — Housing Starts vs. Demand Estimada</CardTitle>
+              <CardTitle className="text-base">Supply Gap — Housing Starts vs. Estimated Demand</CardTitle>
               <p className="text-xs text-muted-foreground">
-                Unidades iniciadas por ano vs. novos domicílios necessários · demanda = crescimento pop. ÷ 2.5 pessoas/domicílio
+                Units started per year vs. new households needed · demand = pop. growth ÷ 2.5 persons/household
               </p>
             </CardHeader>
             <CardContent>
@@ -427,7 +427,7 @@ function AffordabilityTab() {
                   <Line
                     type="monotone"
                     dataKey="estimatedDemand"
-                    name="Demanda Estimada"
+                    name="Estimated Demand"
                     stroke="#f43f5e"
                     strokeWidth={2}
                     strokeDasharray="6 3"

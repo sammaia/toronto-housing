@@ -5,31 +5,31 @@ import type { DataSource } from '@/services/api';
 
 function SyncBadge({ status, lastSyncedAt }: { status: DataSource['lastSyncStatus']; lastSyncedAt: string | null }) {
   if (status === 'manual') {
-    return <Badge variant="outline" className="text-muted-foreground">Atualização manual</Badge>;
+    return <Badge variant="outline" className="text-muted-foreground">Manual update</Badge>;
   }
   if (status === 'pending') {
-    return <Badge variant="outline" className="text-muted-foreground">Aguardando sincronização</Badge>;
+    return <Badge variant="outline" className="text-muted-foreground">Awaiting sync</Badge>;
   }
   if (status === 'failed') {
     const lastSuccess = lastSyncedAt
-      ? new Intl.DateTimeFormat('pt-BR', { dateStyle: 'medium' }).format(new Date(lastSyncedAt))
+      ? new Intl.DateTimeFormat('en-CA', { dateStyle: 'medium' }).format(new Date(lastSyncedAt))
       : null;
     return (
       <Badge variant="destructive" className="text-xs">
-        {lastSuccess ? `Falha — último sucesso: ${lastSuccess}` : 'Falha na última sincronização'}
+        {lastSuccess ? `Failed — last success: ${lastSuccess}` : 'Last sync failed'}
       </Badge>
     );
   }
   // success
   const date = lastSyncedAt
-    ? new Intl.DateTimeFormat('pt-BR', { dateStyle: 'medium' }).format(new Date(lastSyncedAt))
+    ? new Intl.DateTimeFormat('en-CA', { dateStyle: 'medium' }).format(new Date(lastSyncedAt))
     : '—';
   return (
     <Badge
       className="text-xs font-medium"
       style={{ background: 'hsl(142, 76%, 36%)', color: 'white' }}
     >
-      Atualizado em {date}
+      Updated {date}
     </Badge>
   );
 }
